@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d1d1f"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Color Plane">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
+<title>Color Plane</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#1d1d1f;--mute:#6b6b70;--line:#dedcd6;--acc:#1d1d1f;--accink:#fff;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17171a;--card:#222226;--ink:#f1f0ec;--mute:#a0a0a8;--line:#38383e;--acc:#f1f0ec;--accink:#17171a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17171a;--card:#222226;--ink:#f1f0ec;--mute:#a0a0a8;--line:#38383e;--acc:#f1f0ec;--accink:#17171a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.7;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{font-family:"Noto Serif TC","Songti TC",serif;line-height:1.35;margin:0}
+main{max-width:760px;margin:0 auto;padding:20px 16px}
+.hide{display:none!important}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));gap:8px;z-index:5}
+.tabs button{flex:1;border:0;background:none;color:var(--mute);font:500 15px inherit;font-family:inherit;padding:10px;border-radius:10px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--acc);color:var(--accink)}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid #3b82f6;outline-offset:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:none;color:var(--mute);padding:7px 16px;font:500 14px inherit;font-family:inherit;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--acc);color:var(--accink)}
+.drop{display:block;border:2px dashed var(--line);border-radius:14px;padding:28px 16px;text-align:center;color:var(--mute);cursor:pointer}
+.drop input{display:none}
+#prev{max-width:100%;max-height:260px;border-radius:10px;display:block;margin:0 auto 12px}
+.bar{display:flex;height:64px;border-radius:12px;overflow:hidden;margin:10px 0}
+.bar div{display:flex;align-items:flex-end;padding:6px 8px;font-size:12px}
+.sw{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:8px;margin-bottom:8px;cursor:pointer;font-family:inherit}
+.sw i{flex:none;width:52px;height:52px;border-radius:8px;border:1px solid var(--line)}
+.sw b{display:block;font-size:14px}
+.sw span{display:block;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 12px}
+.note{font-size:13px;color:var(--mute)}
+.units{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px}
+.units button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;font:500 14px inherit;font-family:inherit;cursor:pointer}
+.units button[aria-pressed="true"]{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+details{border-top:1px solid var(--line);padding:10px 0}
+details:first-of-type{border-top:0}
+summary{cursor:pointer;font-weight:700}
+details p,details li{margin:8px 0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+.tbl{overflow-x:auto}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--acc);color:var(--accink);padding:8px 16px;border-radius:999px;font-size:14px;z-index:9}
+button{font-size:15px;font-weight:500}
+.opt{display:block;width:100%;text-align:left;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-family:inherit;cursor:pointer}
+.opt:disabled{cursor:default;color:var(--ink);opacity:1}
+.go{border:0;background:var(--acc);color:var(--accink);border-radius:10px;padding:8px 16px;font-family:inherit;cursor:pointer;margin-top:8px}
+#expimg{max-width:100%;border-radius:10px;margin-top:12px;border:1px solid var(--line)}
+*{-webkit-tap-highlight-color:transparent}
+.tabs button,.seg button,.units button,.go{min-height:44px}
+input[type=color]{width:64px;height:44px;border:1px solid var(--line);border-radius:8px;background:none;padding:2px}
+@media (min-width:820px){main{max-width:980px}#result:not(.hide){display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}#result .card{margin-bottom:0}}
+</style>
+</head>
+<body>
+<main>
+<section id="p1">
+  <h1>Color Plane</h1>
+  <p class="note">上傳一張照片，擷取主色並建立 60-30-10 色彩計畫，再延伸出配色方案。</p>
+  <div class="card">
+    <label class="drop" id="drop"><input type="file" id="file" accept="image/*"><span id="dropTxt">點擊選擇照片，或拖曳到這裡</span></label>
+    <div class="row" style="margin-top:14px">
+      <span>色彩模式</span>
+      <div class="seg" id="modeSeg"><button aria-pressed="true" data-m="RGB">RGB</button><button aria-pressed="false" data-m="CMYK">CMYK</button><button aria-pressed="false" data-m="LAB">LAB</button></div>
+    </div>
+    <div class="row"><span>或手動指定主色</span><input type="color" id="manual" value="#cc6699" aria-label="手動指定主色"></div>
+  </div>
+  <div id="result" class="hide">
+    <div class="card"><img id="prev" alt="已上傳的照片">
+      <h2 style="font-size:20px">色彩計畫</h2>
+      <div class="bar" id="bar"></div>
+      <div id="plan"></div>
+      <p class="note">點擊色塊可複製目前模式的數值。CMYK 為簡易換算，實際印刷請依 ICC 描述檔轉換；LAB 以 sRGB 與 D65 計算。</p><button class="go" id="exp">匯出成圖片</button><img id="expimg" class="hide" alt="配色圖片">
+    </div>
+    <div class="card"><h2 style="font-size:20px">延伸配色</h2><p class="note" id="baseNote"></p><div id="harm" class="grid"></div></div>
+  </div>
+</section>
+<section id="p2" class="hide">
+  <h1>知識庫</h1>
+  <p class="note">依單元整理的色彩基礎知識。</p>
+  <div class="units" id="units"></div>
+  <div class="card" id="unitBody"></div>
+</section>
+</main>
+<nav class="tabs" role="tablist"><button role="tab" aria-selected="true" data-t="p1">幫你配色</button><button role="tab" aria-selected="false" data-t="p2">知識庫</button></nav>
+<script>
+const $=s=>document.querySelector(s);
+let mode="RGB",plan=null,base=null;
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+function lin(c){c/=255;return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4)}
+function toLab([r,g,b]){const R=lin(r),G=lin(g),B=lin(b);
+ let x=(0.4124*R+0.3576*G+0.1805*B)/0.95047,y=0.2126*R+0.7152*G+0.0722*B,z=(0.0193*R+0.1192*G+0.9505*B)/1.08883;
+ const f=t=>t>0.008856?Math.cbrt(t):7.787*t+16/116;x=f(x);y=f(y);z=f(z);
+ return[116*y-16,500*(x-y),200*(y-z)].map(Math.round)}
+function toCmyk([r,g,b]){r/=255;g/=255;b/=255;const k=1-Math.max(r,g,b);if(k>=1)return[0,0,0,100];
+ return[(1-r-k)/(1-k),(1-g-k)/(1-k),(1-b-k)/(1-k),k].map(v=>Math.round(v*100))}
+function fmt(c,m=mode){if(m==="RGB")return`R ${c[0]}  G ${c[1]}  B ${c[2]}`;
+ if(m==="CMYK"){const k=toCmyk(c);return`C ${k[0]}  M ${k[1]}  Y ${k[2]}  K ${k[3]}`}
+ const l=toLab(c);return`L ${l[0]}  a ${l[1]}  b ${l[2]}`}
+const hex=c=>"#"+c.map(v=>clamp(Math.round(v),0,255).toString(16).padStart(2,"0")).join("");
+const unhex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+function toHsl([r,g,b]){r/=255;g/=255;b/=255;const M=Math.max(r,g,b),m=Math.min(r,g,b),l=(M+m)/2,d=M-m;let h=0,s=0;
+ if(d){s=d/(1-Math.abs(2*l-1));h=M===r?((g-b)/d)%6:M===g?(b-r)/d+2:(r-g)/d+4;h=(h*60+360)%360}return[h,s,l]}
+function fromHsl(h,s,l){h=((h%360)+360)%360;const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;
+ const [r,g,b]=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+ return[r+m,g+m,b+m].map(v=>Math.round(v*255))}
+const textOn=c=>toLab(c)[0]>60?"#111":"#fff";
+function toast(t){const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1400)}
+function kmeans(px,k=5){const cs=[];for(let i=0;i<k;i++)cs.push(px[Math.floor((i+0.5)*px.length/k)].slice());
+ let asg=new Array(px.length).fill(0);
+ for(let it=0;it<10;it++){const sum=cs.map(()=>[0,0,0,0]);
+  px.forEach((p,i)=>{let b=0,bd=1e9;cs.forEach((c,j)=>{const d=(p[0]-c[0])**2+(p[1]-c[1])**2+(p[2]-c[2])**2;if(d<bd){bd=d;b=j}});asg[i]=b;const s=sum[b];s[0]+=p[0];s[1]+=p[1];s[2]+=p[2];s[3]++});
+  sum.forEach((s,j)=>{if(s[3])cs[j]=[s[0]/s[3],s[1]/s[3],s[2]/s[3]]})}
+ const n=cs.map(()=>0);asg.forEach(a=>n[a]++);
+ return cs.map((c,j)=>({c:c.map(Math.round),n:n[j]})).filter(o=>o.n).sort((a,b)=>b.n-a.n)}
+function build(img){const cv=document.createElement("canvas"),w=64,h=Math.max(1,Math.round(64*img.height/img.width));
+ cv.width=w;cv.height=h;const x=cv.getContext("2d");x.drawImage(img,0,0,w,h);
+ const d=x.getImageData(0,0,w,h).data,px=[];for(let i=0;i<d.length;i+=4)if(d[i+3]>200)px.push([d[i],d[i+1],d[i+2]]);
+ const cl=kmeans(px,5),tot=cl.reduce((a,o)=>a+o.n,0);
+ const main=cl[0],second=cl[1]||cl[0];
+ const rest=cl.slice(2),acc=(rest.length?rest:cl).slice().sort((a,b)=>toHsl(b.c)[1]-toHsl(a.c)[1])[0];
+ plan=[{name:"主色",pct:60,c:main.c,role:"大面積背景與主視覺"},{name:"輔色",pct:30,c:second.c,role:"次要區塊、卡片、圖形"},{name:"點綴色",pct:10,c:acc.c,role:"按鈕、重點標示"}];
+ const sorted=cl.slice().sort((a,b)=>toLab(b.c)[0]-toLab(a.c)[0]);
+ plan.push({name:"淺中性色",pct:0,c:sorted[0].c,role:"留白或底色"},{name:"深中性色",pct:0,c:sorted[sorted.length-1].c,role:"文字與線條"});
+ base=main.c;render()}
+function render(){if(!plan)return;$("#result").classList.remove("hide");
+ $("#bar").innerHTML=plan.filter(p=>p.pct).map(p=>`<div style="flex:${p.pct};background:${hex(p.c)};color:${textOn(p.c)}">${p.name} ${p.pct}%</div>`).join("");
+ $("#plan").innerHTML=plan.map(p=>sw(p.c,p.name+(p.pct?` ${p.pct}%`:""),p.role)).join("");
+ const [h,s,l]=toHsl(base),rot=d=>fromHsl(h+d,s,l);
+ $("#baseNote").textContent=`以 ${hex(base)} 為基準色，依色輪角度產生。`;
+ const sets=[["相近色",[-30,0,30]],["三色群",[0,120,240]],["補色",[0,180]],["分割補色",[0,150,210]]];
+ $("#harm").innerHTML=sets.map(([n,a])=>`<div><h3 style="font-size:16px;margin:6px 0">${n}</h3>${a.map(d=>sw(rot(d),d?`${d>0?"+":""}${d}°`:"基準","")).join("")}</div>`).join("")}
+function sw(c,t,sub){return`<button class="sw" data-c="${c.join(",")}"><i style="background:${hex(c)}"></i><div><b>${t} ${hex(c)}</b><span>${fmt(c)}</span>${sub?`<span>${sub}</span>`:""}</div></button>`}
+document.addEventListener("click",e=>{const b=e.target.closest(".sw");if(!b)return;const c=b.dataset.c.split(",").map(Number);
+ const t=fmt(c),fb=()=>{try{const a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");a.remove();toast("已複製")}catch(_){toast("無法複製")}};try{navigator.clipboard.writeText(t).then(()=>toast("已複製"),fb)}catch(_){fb()}});
+$("#modeSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;mode=b.dataset.m;
+ document.querySelectorAll("#modeSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()});
+function load(f){if(!f||!f.type.startsWith("image/"))return;const u=URL.createObjectURL(f),im=new Image();
+ im.onload=()=>{$("#prev").src=u;$("#prev").classList.remove("hide");$("#dropTxt").textContent="已載入，可重新選擇";build(im)};
+ im.onerror=()=>toast("無法讀取這張圖片");im.src=u}
+$("#file").addEventListener("change",e=>load(e.target.files[0]));
+$("#drop").addEventListener("dragover",e=>e.preventDefault());
+$("#drop").addEventListener("drop",e=>{e.preventDefault();load(e.dataTransfer.files[0])});
+$("#manual").addEventListener("input",e=>{base=unhex(e.target.value);
+ if(!plan){plan=[{name:"主色",pct:60,c:base,role:"大面積背景與主視覺"}];$("#prev").classList.add("hide")}
+ else plan[0].c=base;render()});
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{
+ document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
+ $("#p1").classList.toggle("hide",b.dataset.t!=="p1");$("#p2").classList.toggle("hide",b.dataset.t!=="p2");scrollTo(0,0)}));
+
+const D=(t,h)=>`<details><summary>${t}</summary>${h}</details>`;
+const U=[
+{n:"色光與視覺",h:`<h2>色光與視覺</h2>`+
+D("可見光與波長",`<p>人眼可見光的波長約 380～730 奈米。紅光波長較長，藍光較短。牛頓用三稜鏡發現日光會色散成紅、橙、黃、綠、藍、靛、紫。</p>`)+
+D("眼睛如何看見顏色",`<p>視網膜的錐狀細胞負責感應不同顏色，桿狀細胞負責判斷明暗。現代的色度測量與計算都建立在眼睛對色光的感知上。</p>`)+
+D("標準光源",`<p>光源會明顯影響物體顏色的判斷，印刷品尤其關鍵。CIE 在 1964 年制定 4 種標準光源。</p><div class="tbl"><table><tr><th>光源</th><th>色溫</th><th>相近光源</th><th>主要應用</th></tr><tr><td>D50</td><td>5000K</td><td>正午直射日光</td><td>印刷、藝術品評價</td></tr><tr><td>D55</td><td>5500K</td><td>閃光燈泡</td><td>印刷、室內照明</td></tr><tr><td>D65</td><td>6500K</td><td>晴天平均日光</td><td>攝影、電腦顯示、電視</td></tr><tr><td>D75</td><td>7500K</td><td>偏藍日光</td><td>攝影、顯示器製造</td></tr></table></div>`)},
+{n:"色彩模式",h:`<h2>色彩模式</h2>`+
+D("RGB 加色法",`<p>RGB（紅、綠、藍）是色光三原色，混合愈多愈亮。電腦螢幕與手機就是加色法的應用，常用於攝影、電視與數位環境。</p>`)+
+D("CMY(K) 減色法",`<p>CMY（青、洋紅、黃）是顏料三原色，混合愈多愈暗，會降低飽和度。常用於油畫、水彩與印刷。再加上黑色（K）更省油墨、乾得更快。</p>`)+
+D("設備依賴",`<p>RGB 與 CMYK 在不同螢幕或印表機上結果不同，稱為「設備依賴」。它們控制的是強度而非最終色彩，這是色差產生的根本原因。</p>`)},
+{n:"CIE 色彩系統",h:`<h2>CIE 色彩系統</h2>`+
+D("CIE 1931 XYZ",`<p>以 X、Y、Z 三刺激值精確定義顏色，具「設備獨立」特質。三刺激值由「物體反射光譜 × 光源 × 標準觀察者」計算而得。</p>`)+
+D("xy 色度圖",`<p>馬蹄形的外緣是 380～730 奈米的純色光譜軌跡，範圍內是人眼可見的最大色域，較不飽和的顏色在內部。圖上任兩點之間的顏色可由兩點混合而成，三點圍成的區域可由三點色光混合而得。</p>`)+
+D("CIE L*a*b*",`<p>建立在 XYZ 之上，與視覺感知一致。L* 是明度；a* 正值偏紅、負值偏綠；b* 正值偏黃、負值偏藍。顏色定義客觀獨立且均質等量。</p>`)+
+D("色差 ΔE",`<p>L*a*b* 中兩點的直線距離即色差 ΔEab（ΔE76）。數值大於 2 時，人眼能明顯判斷出差異。2000 年 CIE 修訂出 ΔE00（ΔE2000），更貼近人眼感知，是目前業界主流。</p><p>ΔEab = √[(L2−L1)² + (a2−a1)² + (b2−b1)²]</p>`)},
+{n:"設計軟體設定",h:`<h2>設計軟體的顏色設定</h2>`+
+D("ICC Profile",`<p>RGB、CMYK 需透過 ICC 色彩描述檔，轉換到 CIE LAB 這類絕對色彩空間，才算真正的色彩數據。描述檔由國際色彩協會（ICC）制定。</p>`)+
+D("同樣 RGB，不同描述檔",`<p>同一組 RGB 值換成不同描述檔（例如 sRGB 換成 ProPhoto RGB），LAB 值就不同，顏色實質已改變。所以存檔時要嵌入 ICC Profile。</p>`)+
+D("Adobe 建議設定",`<ul><li>印刷在塗佈類銅版紙：RGB 選 Adobe RGB，CMYK 載入 CGATS21_CRPC6.icc。</li><li>色彩引擎選 Adobe (ACE)，轉換方式選「絕對公制色度」。</li><li>更改「使用中色域」後，需重開新文件並選對應色彩模式。</li></ul>`)},
+{n:"色輪與配色",h:`<h2>色輪與配色方法</h2>`+
+D("色輪的種類",`<p>常見有 CMY 與 RGB 兩種。CMY 色輪用於顏料混色或印刷；RGB 色輪用於數位環境。RGB 色輪的互補關係：紅對青、綠對洋紅、藍對黃。</p>`)+
+D("相近色調和 Analogous",`<p>選色輪上相近的色相，溫和舒適、層次豐富，與單色配色相似。大地色常用於此，如北歐鄉村風格。</p>`)+
+D("三色群調和 Triad",`<p>以三角形配置三種色彩，常用 RGB 或 CMY 三原色。高對比、活潑多元，衝突感比補色小。</p>`)+
+D("補色調和 Complementary",`<p>採用色輪上對角的顏色，視覺對比強烈、吸睛但不穩定，容易視覺疲勞。不適合書籍排版或居家設計，適合運動賽事這類追求動感的場合。</p>`)+
+D("分割補色 Split-Complementary",`<p>把補色「分割」成兩個相鄰的顏色，兼具補色的高反差與相近色的和諧，衝突感較低，比補色更容易操作，常用於冷暖平衡。</p>`)},
+{n:"色彩故事",h:`<h2>色彩的故事與使用方法</h2>`+
+D("紅：人類最初使用的顏色",`<p>史前藝術最早出現的顏色，也是革命與反抗的象徵，歐洲曾僅限貴族使用。</p><p><b>用法：</b>最容易引起身體反應，適合飲料、零食、醫藥品等與「吃」相關的產業。</p>`)+
+D("粉紅：回春的顏色",`<p>原意是玫瑰色。二十世紀前男孩也穿粉紅，1950 年代的美國是粉紅的時代。</p>`)+
+D("黃：幸福與誓言",`<p>中世紀是負面的顏色，也是美國婦女參政運動的象徵，佛教僧袍用黃色。</p><p><b>用法：</b>適合想營造正面積極形象的品牌，也適合健身等身體活動產業。</p>`)+
+D("綠：萬物生長",`<p>green 來自古英文 growan，代表生長。伊斯蘭文化高度崇尚綠色。</p><p><b>用法：</b>廣泛用於教育品牌，現代象徵健康、環保、公正。</p>`)+
+D("藍：象徵智慧",`<p>天空與水的藍帶來平靜感，也是聖母瑪利亞的顏色，克萊因藍聞名於世。</p><p><b>用法：</b>給人冰冷的感覺，與理性、美學導向的品牌相襯。</p>`)+
+D("紫：奢華、自由",`<p>王族的顏色，也象徵哀悼；1960 年代象徵嬉皮，現今也是 LGBT 的代表色。</p><p><b>用法：</b>象徵神秘、高貴、藝術性與稀少性，適合貴賓服務、奢侈品與藝術相關產業。</p>`)+
+D("黑：黑暗與光明的雙面性",`<p>秦始皇尚黑，十七世紀歐洲中產階級穿黑衣，小黑裙與黑色高領都成為經典。</p><p><b>用法：</b>帶來正直、簡潔俐落、高級的形象。</p>`)}
+];
+$("#units").innerHTML=U.map(u=>u.n).concat(["色彩索引","小測驗"]).map((n,i)=>`<button aria-pressed="${i===0}" data-i="${i}">${n}</button>`).join("");
+function showUnit(i){if(i<U.length){$("#unitBody").innerHTML=U[i].h;$("#unitBody").querySelector("details").open=true}else(i===U.length?idxView:quizView)();
+ document.querySelectorAll("#units button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.i==i))}
+$("#units").addEventListener("click",e=>{const b=e.target.closest("button");if(b)showUnit(+b.dataset.i)});
+function exportImg(){if(!plan)return;const W=900,cv=document.createElement("canvas");cv.width=W;cv.height=190+plan.length*110;const x=cv.getContext("2d");
+x.fillStyle="#fff";x.fillRect(0,0,W,cv.height);x.fillStyle="#111";x.font="700 36px sans-serif";x.fillText("色彩計畫",40,60);
+let px=40;plan.filter(r=>r.pct).forEach(r=>{const w=820*r.pct/100;x.fillStyle=hex(r.c);x.fillRect(px,90,w,60);px+=w});
+plan.forEach((r,i)=>{const y=180+i*110;x.fillStyle=hex(r.c);x.fillRect(40,y,90,90);x.strokeStyle="#ccc";x.strokeRect(40,y,90,90);x.fillStyle="#111";x.font="700 26px sans-serif";x.fillText(r.name+(r.pct?" "+r.pct+"%":"")+"  "+hex(r.c),150,y+30);x.font="22px sans-serif";x.fillStyle="#555";x.fillText(fmt(r.c),150,y+58)});
+const im=$("#expimg");im.src=cv.toDataURL("image/png");im.classList.remove("hide");toast("長按或按右鍵即可儲存圖片")}
+$("#exp").addEventListener("click",exportImg);
+const IDX=[[109,89,9,5,0,11,12,0,236,216,213],[205,84,8,5,5,16,16,0,220,203,199],[103,83,8,6,6,17,18,0,218,200,195],[195,84,14,3,0,20,12,0,227,199,203],[226,81,8,2,10,19,16,0,210,195,196],[195,78,13,4,8,26,19,0,209,183,184],[236,78,11,1,11,24,16,0,205,184,190],[195,70,33,10,0,48,26,0,210,146,153],[195,59,37,10,6,61,33,7,183,114,125],[198,57,48,20,1,71,46,4,191,98,104],[119,60,42,12,3,64,33,4,192,112,124],[195,46,62,26,1,95,62,9,173,48,71],[206,70,43,22,0,55,41,0,224,137,133],[198,60,64,33,0,79,62,0,217,85,91],[157,53,80,67,0,92,99,0,214,0,14],[227,50,77,59,0,96,99,0,202,0,27],[136,45,63,43,0,99,95,7,173,41,44],[146,49,61,61,0,88,100,1,184,57,17],[118,49,57,29,1,87,66,8,178,65,73],[119,45,64,43,0,100,94,7,174,39,44]];
+function idxView(){const b=base||[204,102,153];$("#unitBody").innerHTML=`<h2>色彩索引查詢</h2><p class="note">選一個顏色，找出書中顏色索引最接近的色塊。目前收錄索引第 332 頁的前 20 色（粉紅到紅色），其餘頁面之後可再補。</p><div class="row"><input type="color" id="ixc" value="${hex(b)}" aria-label="查詢顏色"></div><div id="ixr"></div>`;
+const run=()=>{const l=toLab(unhex($("#ixc").value));const r=IDX.map(o=>({o,d:Math.hypot(o[1]-l[0],o[2]-l[1],o[3]-l[2])})).sort((a,b)=>a.d-b.d).slice(0,3);
+$("#ixr").innerHTML=r.map(({o,d})=>`<button class="sw" data-c="${o.slice(8).join(",")}"><i style="background:${hex(o.slice(8))}"></i><div><b>書中 P.${o[0]}　ΔE ${d.toFixed(1)}</b><span>LAB ${o[1]} ${o[2]} ${o[3]}</span><span>CMYK ${o.slice(4,8).join(" ")}</span><span>RGB ${o.slice(8).join(" ")}</span></div></button>`).join("")};
+$("#ixc").addEventListener("input",run);run()}
+const Q=[["可見光的波長大約在哪個範圍？",["200～400 nm","380～730 nm","700～1000 nm"],1,"人眼可見光約 380～730 奈米。"],["下列哪一種色彩空間具有「設備獨立」特性？",["RGB","CMYK","CIE XYZ／L*a*b*"],2,"XYZ 以三刺激值定義顏色，不受螢幕或印表機影響。"],["在 L*a*b* 中，a* 為負值表示偏什麼色？",["偏紅","偏綠","偏黃"],1,"a* 正偏紅、負偏綠；b* 正偏黃、負偏藍。"],["ΔEab 大於多少時，人眼能明顯察覺色差？",["0.5","2","10"],1,"書中指出大於 2 即可明顯判斷差異。"],["目前業界主流的色差公式是？",["ΔE76","ΔE00","ΔE50"],1,"2000 年 CIE 修訂 ΔE76，推出 ΔE00（ΔE2000）。"],["攝影、電腦顯示與電視常用哪一種標準光源？",["D50","D65","D55"],1,"D65（6500K）相近晴天平均日光；D50 常用於印刷。"],["RGB 色輪上，紅色的對角是？",["青","洋紅","黃"],0,"紅對青、綠對洋紅、藍對黃。"],["把補色「分割」成兩個相鄰顏色的配色方法是？",["三色群調和","分割補色調和","相近色調和"],1,"分割補色兼具高反差與和諧，衝突感較低。"],["同樣的 RGB 值換了 ICC 描述檔，會發生什麼事？",["顏色不變","LAB 值改變，顏色實質不同","檔案變小"],1,"LAB 才是真實色彩數值，所以存檔要嵌入 ICC Profile。"]];
+let qi=0,sc=0;
+function quizView(){qi=0;sc=0;qShow()}
+function qShow(){const el=$("#unitBody");if(qi>=Q.length){el.innerHTML=`<h2>測驗完成</h2><p>你答對了 ${sc} / ${Q.length} 題。</p><button class="go" id="qre">再測一次</button>`;$("#qre").onclick=quizView;return}
+const q=Q[qi];el.innerHTML=`<h2>小測驗 ${qi+1} / ${Q.length}</h2><p>${q[0]}</p><div id="qo">${q[1].map((t,i)=>`<button class="opt" data-i="${i}">${t}</button>`).join("")}</div><p id="qf" class="note"></p>`;
+$("#qo").onclick=e=>{const b=e.target.closest(".opt");if(!b||b.disabled)return;const ok=+b.dataset.i===q[2];if(ok)sc++;
+document.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(+x.dataset.i===q[2])x.style.borderColor="#16a34a"});if(!ok)b.style.borderColor="#dc2626";
+$("#qf").innerHTML=(ok?"答對了。":"答錯了。")+q[3]+` <button class="go" id="qn">${qi+1<Q.length?"下一題":"看結果"}</button>`;$("#qn").onclick=()=>{qi++;qShow()}}}
+showUnit(0);
+if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
